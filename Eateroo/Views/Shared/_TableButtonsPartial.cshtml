@@ -1,0 +1,43 @@
+﻿@model  int
+
+<td class="text-right" style="width:150px">
+    <div class="btn-group" role="group">
+        <a class="btn btn-primary text-white tooltip-target" asp-action="Edit" asp-route-id="@Model" title="Edit">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a class="btn btn-info text-white tooltip-target" asp-action="Detail" asp-route-id="@Model"  title="Detail">
+            <i class="fas fa-list-alt"></i>
+        </a>
+
+        @{ var deleteModalId = "deleteModal" + Model; }
+        @{ var deleteModalIdRef = "#deleteModal" + Model; }
+        @{ var deleteModalLabelId = "deleteModalLabel" + Model; }
+        <button type="button" class="btn btn-danger text-white tooltip-target" data-toggle="modal" data-target="@deleteModalIdRef" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="@deleteModalId" tabindex="-1" role="dialog" aria-labelledby="@deleteModalLabelId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered justify-content-center" role="document">
+            <form method="post">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="@deleteModalLabelId">Confirm Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete the item?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger btn-width" asp-action="Delete" asp-route-id="@Model">Yes</button>
+                        <button type="button" class="btn btn-secondary btn-width" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</td>
