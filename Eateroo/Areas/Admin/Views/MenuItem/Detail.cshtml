@@ -1,0 +1,129 @@
+﻿@model Eateroo.Models.ViewModels.MenuItemViewModel
+@using Eateroo.Extensions
+@{
+    ViewData["Title"] = "Menu Item Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<h2 class="text-info">Menu Item Details</h2>
+<br />
+
+<div class="card shadow p-4">
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.Name" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <input readonly asp-for="MenuItem.Name" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.Description" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-10">
+            <textarea disabled asp-for="MenuItem.Description" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.Price" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <input readonly asp-for="MenuItem.Price" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.Image" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <img class="img-thumbnail" src="@Model.MenuItem.Image" alt="Menu Item Image" />
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.CategoryId" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <select asp-for="MenuItem.CategoryId"
+                    asp-items="@Model.Categories.ToSelectListItemList(Model.MenuItem.CategoryId)"
+                    class="form-control"
+                    id="selectCategoryList"
+                    disabled></select>
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.SubCategoryId" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <select asp-for="MenuItem.SubCategoryId"
+                    asp-items="@(new SelectList(string.Empty, "Id", "Name"))"
+                    class="form-control"
+                    id="selectSubCategoryList"
+                    name="selectSubCategoryList"
+                    disabled></select>
+        </div>
+    </div>
+
+    <div class="form-group row align-items-center">
+        <div class="col-sm-2">
+            <label asp-for="MenuItem.Spiciness" class="col-form-label"></label>
+        </div>
+        <div class="col-sm-5">
+            <select asp-for="MenuItem.Spiciness"
+                    asp-items="@Html.GetEnumSelectList<MenuItem.SpiceType>()"
+                    class="form-control"
+                    disabled></select>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="offset-sm-2 col-sm-10">
+            <partial name="_DetailAndBackToListButtonPartial" model="@Model.MenuItem.Id" />
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'lists',
+            menubar: 'file edit format',
+            readonly: true
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(() => {
+            getSubCategory();
+
+            $('#selectCategoryList').change(() => {
+                getSubCategory();
+            });
+        });
+
+        function getSubCategory() {
+            var url = '@Url.Content("~/")' + "Admin/SubCategory/GetSubCategories";
+            var ddlSource = "#selectCategoryList";
+
+            $.getJSON(url, { id: $(ddlSource).val() }, (data) => {
+                var items = '';
+                $('#selectSubCategoryList').empty();
+                $.each(data, (i, subCategory) => {
+                    items += "<option value'" + subCategory.value + "'>" + subCategory.text + "</option>";
+                });
+                $('#selectSubCategoryList').html(items);
+            });
+        };
+    </script>
+}
