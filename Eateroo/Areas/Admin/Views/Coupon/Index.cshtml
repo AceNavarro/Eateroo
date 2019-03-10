@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Coupon>
+@using Eateroo.Extensions
+
+@{
+    ViewData["Title"] = "Coupon List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<div class="card shadow p-4">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-info m-0">Coupon List</h2>
+        </div>
+        <div class="col-6 text-right">
+            <partial name="_CreateButtonPartial" />
+        </div>
+    </div>
+    <br />
+    <div>
+        @if (Model.Count() > 0)
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Name)</th>
+                    <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Discount)</th>
+                    <th>@Html.DisplayNameFor(m => m.FirstOrDefault().MinimumAmount)</th>
+                    <th>@Html.DisplayNameFor(m => m.FirstOrDefault().IsActive)</th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(m => item.Name)</td>
+                        <td>@Html.DisplayFor(m => item.Discount)</td>
+                        <td>@Html.DisplayFor(m => item.MinimumAmount)</td>
+                        <td>@item.IsActive.ToDisplayYesOrNo()</td>
+                        <partial name="_TableButtonsPartial" model="item.Id" />
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info">No coupon has been added yet.</div>
+        }
+    </div>
+</div>
