@@ -1,0 +1,48 @@
+﻿@model IEnumerable<MenuItem>
+
+@if(Model.Any())
+{
+    <div class="col-12 pb-4 post @Model.FirstOrDefault().Category.Name.Replace(" ", string.Empty) menu-restaurant">
+        <h3 class="text-info">@Model.FirstOrDefault().Category.Name</h3>
+
+        @foreach(var item in Model)
+        {
+            <div class="border border-info rounded m-3 p-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="@item.Image" class="img-fluid card" />
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-8">
+                                <label class="text-dark" style="font-size:21px;">@item.Name</label>
+                                @if(item.Spiciness == "1")
+                                {
+                                    <img src="~/images/spicy.png" title="Spicy" class="tooltip-target" style="width:25px" />
+                                }
+                            </div>
+                            <div class="col-4 text-right">
+                                <h4>$@item.Price.ToString("0.00")</h4>
+                            </div>
+                        </div>
+
+                        <div class="row d-none d-md-block">
+                            <div class="col-12 text-justify">
+                                <p>@Html.Raw(item.Description)</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="offset-md-9 col-md-3 text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info form-control">Details</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+}
