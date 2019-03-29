@@ -7,12 +7,14 @@ using Eateroo.Data;
 using Eateroo.Models;
 using Eateroo.Models.ViewModels;
 using Eateroo.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eateroo.Areas.Admin.Controllers
 {
+    [Authorize(Roles = StaticDetail.ManagerUser)]
     [Area("Admin")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public class MenuItemController : Controller

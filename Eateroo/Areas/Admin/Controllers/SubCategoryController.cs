@@ -1,6 +1,8 @@
 ﻿using Eateroo.Data;
 using Eateroo.Models;
 using Eateroo.Models.ViewModels;
+using Eateroo.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Eateroo.Areas.Admin.Controllers
 {
+    [Authorize(Roles = StaticDetail.ManagerUser)]
     [Area("Admin")]
     public class SubCategoryController : Controller
     {
