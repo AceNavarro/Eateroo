@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Eateroo.Models;
+using Eateroo.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,17 +21,20 @@ namespace Eateroo.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         [BindProperty]
@@ -54,6 +59,21 @@ namespace Eateroo.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            public string Name { get; set; }
+
+            [Display(Name = "Phone Number")]
+            public string PhoneNumber { get; set; }
+
+            public string Street { get; set; }
+
+            public string City { get; set; }
+
+            public string State { get; set; }
+
+            [Display(Name = "Postal Code")]
+            public string PostalCode { get; set; }
         }
 
         public void OnGet(string returnUrl = null)
@@ -64,13 +84,31 @@ namespace Eateroo.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new ApplicationUser {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    Name = Input.Name,
+                    PhoneNumber = Input.PhoneNumber,
+                    Street = Input.Street,
+                    City = Input.City,
+                    State = Input.State,
+                    PostalCode = Input.PostalCode
+                };
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    await InitRoles();
+
+                    // TODO: Check again for the correct role. Should be Customer instead?
+                    string selectedRole = Request.Form["rdUserRole"].ToString();
+                    selectedRole = string.IsNullOrEmpty(selectedRole) ? StaticDetail.CustomerUser : selectedRole;
+                    await _userManager.AddToRoleAsync(user, selectedRole);
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Page(
@@ -82,8 +120,13 @@ namespace Eateroo.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    if (selectedRole == StaticDetail.CustomerUser)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+
+                    return RedirectToAction("Index", "User", new { area = "Admin" });
                 }
                 foreach (var error in result.Errors)
                 {
@@ -93,6 +136,29 @@ namespace Eateroo.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private async Task InitRoles()
+        {
+            if (!await _roleManager.RoleExistsAsync(StaticDetail.ManagerUser))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetail.ManagerUser));
+            }
+
+            if (!await _roleManager.RoleExistsAsync(StaticDetail.KitchenUser))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetail.KitchenUser));
+            }
+
+            if (!await _roleManager.RoleExistsAsync(StaticDetail.FrontDeskUser))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetail.FrontDeskUser));
+            }
+
+            if (!await _roleManager.RoleExistsAsync(StaticDetail.CustomerUser))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetail.CustomerUser));
+            }
         }
     }
 }

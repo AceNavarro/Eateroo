@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eateroo.Data;
 using Eateroo.Models;
+using Eateroo.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eateroo.Areas.Admin.Controllers
 {
+    [Authorize(Roles = StaticDetail.ManagerUser)]
     [Area("Admin")]
     public class CategoryController : Controller
     {
