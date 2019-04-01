@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Eateroo.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Eateroo.Utility;
 
 namespace Eateroo.Areas.Identity.Pages.Account
 {
@@ -17,11 +21,13 @@ namespace Eateroo.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _db;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _db = db;
         }
 
         [BindProperty]
@@ -77,6 +83,12 @@ namespace Eateroo.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    // Count the total number of items in the cart and store in session
+                    var user = await _db.ApplicationUser.FirstOrDefaultAsync(u => u.Email == Input.Email);
+                    var totalCount = await _db.ShoppingCart.Where(c => c.ApplicationUserId == user.Id).SumAsync(c => c.Count);
+                    HttpContext.Session.SetInt32(StaticDetail.ShoppingCartCount, totalCount);
+                    
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
