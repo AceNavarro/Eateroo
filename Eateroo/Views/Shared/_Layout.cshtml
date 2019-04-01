@@ -1,4 +1,7 @@
 ﻿@using Eateroo.Utility
+@using Microsoft.AspNetCore.Http
+
+@inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
 <html>
@@ -9,8 +12,8 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" 
-              integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" 
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+              integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
               crossorigin="anonymous">
     </environment>
     <environment exclude="Development">
@@ -19,8 +22,8 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
               crossorigin="anonymous"
               integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" 
-              integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" 
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+              integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
               crossorigin="anonymous">
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
@@ -55,7 +58,15 @@
                         }
 
                         <a class="nav-item nav-link" asp-area="Customer" asp-controller="Home" asp-action="Index">
-                            <i class="fas fa-shopping-cart"></i> (0)
+                            @{
+                                int cartTotalCount = 0;
+                                var count = HttpContextAccessor.HttpContext.Session.GetInt32(StaticDetail.ShoppingCartCount);
+                                if (count.HasValue)
+                                {
+                                    cartTotalCount = count.Value;
+                                }
+                            }
+                            <i class="fas fa-shopping-cart"></i> (@cartTotalCount)
                         </a>
                     </div>
                 </div>
